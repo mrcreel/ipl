@@ -119,3 +119,7 @@ t.venues.home <- bind_rows(
   summarise(team.games = n()) %>%
   filter(team.games >= threshhold.match)
 
+
+# 8. Get match batting results --------------------------------------------
+
+
