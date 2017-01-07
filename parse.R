@@ -6,8 +6,8 @@ library(lubridate)
 
 # 2. Load raw data files --------------------------------------------------
 
-raw.matches <- read.csv("./data/matches.csv")
-raw.deliveries <- read.csv("./data/deliveries.csv")
+# raw.matches <- read.csv("./data/matches.csv")
+# raw.deliveries <- read.csv("./data/deliveries.csv")
 
 
 # 3. IPL host cities by country ----------------------------------------------
@@ -94,10 +94,9 @@ t.matches <- bind_rows(
   t.matches %>%
     filter(!match.id %in% playoff.matches$match.id) %>%
     mutate(match.stage = "group",
-           match.date = ymd(match.date)),
+           match.date = ymd(match.date),
+           season = year(match.date)),
   playoff.matches) 
-
-t.matches[3:12] <- lapply(t.matches[3:12], factor)
 
 
 # 7. Initialize Variables -------------------------------------------------
@@ -117,9 +116,33 @@ t.venues.home <- bind_rows(
     filter(match.stage == "group")) %>%
   group_by(season, season.team, season.venue) %>%
   summarise(team.games = n()) %>%
+  mutate(atHome = TRUE) %>%
   filter(team.games >= threshhold.match)
 
 
-# 8. Get match batting results --------------------------------------------
+# 8. Get match batting results for park factor ---------------------------
+t.match.runs <- raw.deliveries %>%
+  group_by(match.id = match_id,
+           team.batting = batting_team) %>%
+  summarise(team.runs = sum(batsman_runs),
+            team.balls = sum(wide_runs == 0),
+            team.4s= sum(batsman_runs == 4),
+            team.6s = sum(batsman_runs == 6)) %>%
+  merge(t.matches %>% select(match.id, season, venue = match.venue)) %>%
+  merge(t.venues.home, 
+            by.x = c("season", "team.batting", "venue"),
+            by.y = c("season", "season.team", "season.venue"),
+        all.x = TRUE) %>%
+  replace_na(list(atHome = FALSE)) %>%
+  group_by(season, team.batting, atHome) %>%
+  summarise(games = n(),
+            season.runs = sum(team.runs))
+
+temp.runs <- raw.deliveries %>%
+  group_by(match.id = match_id,
+           team = batting_team) %>%
+  summarise(runs = sum(batsman_runs),
+            balls = sum(wide_runs == 0))
+
 
 
