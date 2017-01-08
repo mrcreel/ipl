@@ -1,10 +1,10 @@
-# 1. Load packages ------------------------------------------------------------
-library(tidyverse)
-library(lubridate)
-
-# 2. Load raw data files ------------------------------------------------------
-raw.matches <- read.csv("./data/matches.csv")
-raw.deliveries <- read.csv("./data/deliveries.csv")
+# # 1. Load packages ------------------------------------------------------------
+# library(tidyverse)
+# library(lubridate)
+# 
+# # 2. Load raw data files ------------------------------------------------------
+# raw.matches <- read.csv("./data/matches.csv", stringsAsFactors = FALSE)
+# raw.deliveries <- read.csv("./data/deliveries.csv", stringsAsFactors = FALSE)
 
 # 3. Trim down raw.matches  dataframe------------------------------------------
 t.matches <- raw.matches %>%
