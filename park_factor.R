@@ -1,21 +1,12 @@
-# 1. Load packages --------------------------------------------------------
+# 1. Load packages ------------------------------------------------------------
 library(tidyverse)
 library(lubridate)
 
-# 2. Load raw data files --------------------------------------------------
+# 2. Load raw data files ------------------------------------------------------
 raw.matches <- read.csv("./data/matches.csv")
 raw.deliveries <- read.csv("./data/deliveries.csv")
 
-# 3. Select and add columns ----------------------------------------------
-library(tidyverse)
-library(lubridate)
-
-
-# 2. Load raw data files --------------------------------------------------
-raw.matches <- read.csv("./data/matches.csv")
-raw.deliveries <- read.csv("./data/deliveries.csv")
-
-# 3. Select and add columns ----------------------------------------------
+# 3. Trim down raw.matches  dataframe------------------------------------------
 t.matches <- raw.matches %>%
   select(match.id = id, 
          match.date = date,
@@ -25,7 +16,7 @@ t.matches <- raw.matches %>%
          match.result = result) %>%
   mutate(match.date = ymd(match.date))
 
-# 4. Set round of match ---------------------------------------------------
+# 4. Set round of match -------------------------------------------------------
 ## An ugly way to set round of match (group stage vs knockout)
 ## 2008 & 2009 had 3 playoff matches a year.
 ## The other seasons have 4.
@@ -52,9 +43,10 @@ t.matches <- bind_rows(
            season = year(match.date)),
   playoff.matches) 
 
+# ployoff.matches no longer needed
 rm(playoff.matches) 
 
-# 5. Use games played at venue to determine home teams for season --------------
+# 5. Use games played at venue to determine home teams for season -------------
 threshhold.match <- 3
 
 t.venues.home <- bind_rows(
@@ -72,7 +64,14 @@ t.venues.home <- bind_rows(
   summarise(team.games = n()) %>%
   filter(team.games >= threshhold.match)
 
-# 6. Get match batting results for park factor computation ---------------------
-t.match.stats <- raw.deliveries %>%
+# 6. Get match batting results for park factor computation --------------------
+t.match.bat.stats <- raw.deliveries %>%
   group_by(match.id = match_id,
-           team = batting_team)
+           team = batting_team) %>%
+  summarise(balls = sum(wide_runs == 0),
+            runs = sum(batsman_runs),
+            bat.4s = sum(batsman_runs == 4),
+            bat.6s = sum(batsman_runs == 6)) %>%
+  merge(t.matches %>%
+          select(match.id, season, venue = match.venue))
+
