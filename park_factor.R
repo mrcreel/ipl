@@ -1,5 +1,4 @@
 # 1. Load packages --------------------------------------------------------
-<<<<<<< HEAD
 library(tidyverse)
 library(lubridate)
 
@@ -8,21 +7,15 @@ raw.matches <- read.csv("./data/matches.csv")
 raw.deliveries <- read.csv("./data/deliveries.csv")
 
 # 3. Select and add columns ----------------------------------------------
-=======
-
 library(tidyverse)
 library(lubridate)
 
 
 # 2. Load raw data files --------------------------------------------------
-
 raw.matches <- read.csv("./data/matches.csv")
 raw.deliveries <- read.csv("./data/deliveries.csv")
 
-
 # 3. Select and add columns ----------------------------------------------
-
->>>>>>> 1999f679923b4f0fdb004715eabfe38d4d441e27
 t.matches <- raw.matches %>%
   select(match.id = id, 
          match.date = date,
@@ -36,10 +29,6 @@ t.matches <- raw.matches %>%
 ## An ugly way to set round of match (group stage vs knockout)
 ## 2008 & 2009 had 3 playoff matches a year.
 ## The other seasons have 4.
-<<<<<<< HEAD
-=======
-
->>>>>>> 1999f679923b4f0fdb004715eabfe38d4d441e27
 playoff.matches <- bind_rows(
   t.matches %>%
     group_by(season = year(match.date)) %>%
@@ -65,12 +54,7 @@ t.matches <- bind_rows(
 
 rm(playoff.matches) 
 
-<<<<<<< HEAD
-# 5. Use games played at venue to determine home teams for season -------------
-=======
 # 5. Use games played at venue to determine home teams for season --------------
-
->>>>>>> 1999f679923b4f0fdb004715eabfe38d4d441e27
 threshhold.match <- 3
 
 t.venues.home <- bind_rows(
@@ -88,10 +72,6 @@ t.venues.home <- bind_rows(
   summarise(team.games = n()) %>%
   filter(team.games >= threshhold.match)
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 1999f679923b4f0fdb004715eabfe38d4d441e27
 # 6. Get match batting results for park factor computation ---------------------
 t.match.stats <- raw.deliveries %>%
   group_by(match.id = match_id,
