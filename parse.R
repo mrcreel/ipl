@@ -106,43 +106,24 @@ threshhold.match <- 3
 t.venues.home <- bind_rows(
   t.matches %>%
     group_by(season = year(match.date),
-             season.team = match.team1,
-             season.venue = match.venue) %>%
+             team = match.team1,
+             venue = match.venue) %>%
     filter(match.stage == "group"),
   t.matches %>%
     group_by(season = year(match.date),
-             season.team = match.team2,
-             season.venue = match.venue) %>%
+             team = match.team2,
+             venue = match.venue) %>%
     filter(match.stage == "group")) %>%
-  group_by(season, season.team, season.venue) %>%
+  group_by(season, team, venue) %>%
   summarise(team.games = n()) %>%
-  mutate(atHome = TRUE) %>%
   filter(team.games >= threshhold.match)
 
 
 # 8. Get match batting results for park factor ---------------------------
-t.match.runs <- raw.deliveries %>%
-  group_by(match.id = match_id,
-           team.batting = batting_team) %>%
-  summarise(team.runs = sum(batsman_runs),
-            team.balls = sum(wide_runs == 0),
-            team.4s= sum(batsman_runs == 4),
-            team.6s = sum(batsman_runs == 6)) %>%
-  merge(t.matches %>% select(match.id, season, venue = match.venue)) %>%
-  merge(t.venues.home, 
-            by.x = c("season", "team.batting", "venue"),
-            by.y = c("season", "season.team", "season.venue"),
-        all.x = TRUE) %>%
-  replace_na(list(atHome = FALSE)) %>%
-  group_by(season, team.batting, atHome) %>%
-  summarise(games = n(),
-            season.runs = sum(team.runs))
-
-temp.runs <- raw.deliveries %>%
+t.match.stats <- raw.deliveries %>%
   group_by(match.id = match_id,
            team = batting_team) %>%
-  summarise(runs = sum(batsman_runs),
-            balls = sum(wide_runs == 0))
+  summarise(balls = sum(wide_runs == 0))
 
 
 
